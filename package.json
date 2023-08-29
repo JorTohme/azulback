@@ -11,13 +11,14 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@supabase/supabase-js": "^2.33.1",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2"
   },
   "devDependencies": {
-    "standard": "^17.1.0",
-    "nodemon": "^1.17.1"
+    "nodemon": "^1.17.1",
+    "standard": "^17.1.0"
   },
   "eslintConfig": {
     "extends": "standard"
