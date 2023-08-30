@@ -1,7 +1,7 @@
 import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
-
+import bodyParser from 'body-parser'
 // Routers
 import spacesRouter from './routers/spaces-router.js'
 import tablesRouter from './routers/tables-router.js'
@@ -10,6 +10,7 @@ import menuRouter from './routers/menu-router.js'
 
 const app = express()
 app.use(cors())
+app.use(bodyParser.json())
 
 app.get('/', (req, res) => {
   res.send('Hello World!')
