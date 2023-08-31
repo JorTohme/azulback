@@ -16,7 +16,7 @@ app.get('/', (req, res) => {
   res.send('Hello World!')
 })
 
-app.use('menu', menuRouter)
+app.use('/menu', menuRouter)
 app.use('/orders', ordersRouter)
 app.use('/tables', tablesRouter)
 app.use('/spaces', spacesRouter)
