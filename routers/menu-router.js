@@ -9,7 +9,17 @@ menuRouter.get('/items', async (req, res) => {
     .select('*')
     .order('id', { ascending: false })
 
-  if (error) res.status(400).json({ error: error.message })
+  const { data: menuCategories, error: errorCategories } = await supabase
+    .from('menuCategory')
+    .select('*')
+    .order('id', { ascending: false })
+
+  menuItems.forEach((item) => {
+    // return .name instead of .id
+    item.category = menuCategories.find((category) => category.id === item.category).name
+  })
+
+  if (error || errorCategories) res.status(400).json({ error: error.message })
   else res.status(200).json(menuItems)
 })
 

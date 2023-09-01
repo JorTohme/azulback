@@ -19,11 +19,11 @@ ordersRouter.get('/today', async (req, res) => {
   const { data: menuItems, error3 } = await supabase
     .from('menuItem')
     .select('*')
-    .in('id', orderItem.map((item) => item.menu_item_id))
+    .in('id', orderItem.map((item) => item.item_id))
 
   // add menu items to the order items
   const orderItemsWithMenuItems = orderItem.map((item) => {
-    const menuItem = menuItems.find((menuItem) => menuItem.id === item.menu_item_id)
+    const menuItem = menuItems.find((menuItem) => menuItem.id === item.item_id)
     return { ...item, menuItem }
   })
 
@@ -35,6 +35,35 @@ ordersRouter.get('/today', async (req, res) => {
 
   if (error || error2 || error3) res.status(400).json({ error: error.message })
   else res.status(200).json(todayOrdersWithOrderItems)
+})
+
+ordersRouter.post('/', async (req, res) => {
+  const { data } = req.body
+  // create table order
+  const { data: tableOrder, error } = await supabase
+    .from('order')
+    .insert({ waiter_name: data.waiterName, table: data.tableNumber })
+    .single()
+    .select()
+
+  // create order items
+  // tableOrder is undefined
+  const orderItems = data.orderItems.map((item) => {
+    return {
+      order_id: tableOrder.id,
+      item_id: item.id,
+      note: item.note,
+      quantity: item.quantity
+
+    }
+  })
+
+  const { data: orderItemsData, error2 } = await supabase
+    .from('orderItem')
+    .insert(orderItems)
+
+  if (error || error2) res.status(400).json({ error: error.message })
+  else res.status(200).json({ order: tableOrder, orderItems: orderItemsData })
 })
 
 export default ordersRouter
