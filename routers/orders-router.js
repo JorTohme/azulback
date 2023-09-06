@@ -7,6 +7,7 @@ ordersRouter.get('/today', async (req, res) => {
   const { data: todayOrders, error } = await supabase
     .from('order')
     .select('*')
+    .order('created_at', { ascending: true })
     // .eq('created_at', new Date().toISOString().slice(0, 10))
 
   // get items from the order
