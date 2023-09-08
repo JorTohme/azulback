@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import supabase from '../database/supabase.js'
-
+import { io } from '../index.js'
 const ordersRouter = Router()
 
 ordersRouter.get('/today', async (req, res) => {
@@ -64,6 +64,9 @@ ordersRouter.post('/', async (req, res) => {
 
   if (error || error2) res.status(400).json({ error: error.message })
   else res.status(200).json({ order: tableOrder, orderItems: orderItemsData })
+
+  // send socket event
+  io.emit('updateOrders', { success: !(error || error2), error: error?.message || error2?.message })
 })
 
 ordersRouter.put('/:id', async (req, res) => {
@@ -78,6 +81,9 @@ ordersRouter.put('/:id', async (req, res) => {
 
   if (error) res.status(400).json({ error: error.message })
   else res.status(200).json(data)
+
+  // send socket event
+  io.emit('updateOrders', { success: !(error), error: error?.message })
 })
 
 export default ordersRouter
