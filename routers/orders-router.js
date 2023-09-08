@@ -7,8 +7,7 @@ ordersRouter.get('/today', async (req, res) => {
   const { data: todayOrders, error } = await supabase
     .from('order')
     .select('*')
-    // get order from the last 12 hours and finished: false
-    .gte('created_at', new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString())
+    // .gte('created_at', new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString())
     .eq('finished', false)
     .order('created_at', { ascending: false })
 
