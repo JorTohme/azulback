@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import supabase from '../database/supabase.js'
+import { io } from '../index.js'
 
 const tablesRouter = Router()
 
@@ -22,6 +23,8 @@ tablesRouter.put('/open/:tableId', async (req, res) => {
 
   if (error) res.status(400).json({ error: error.message })
   else res.status(200).json(table)
+
+  io.emit('updateSpaces', { success: !(error), error: error?.message })
 })
 
 tablesRouter.put('/pay/:tableId', async (req, res) => {
@@ -40,6 +43,8 @@ tablesRouter.put('/pay/:tableId', async (req, res) => {
 
   if (error2) res.status(400).json({ error: error2.message })
   else res.status(200).json({ table, orders })
+
+  io.emit('updateSpaces', { success: !(error || error2), error: error?.message || error2?.message })
 })
 
 tablesRouter.put('/free/:tableId', async (req, res) => {
@@ -52,6 +57,8 @@ tablesRouter.put('/free/:tableId', async (req, res) => {
 
   if (error) res.status(400).json({ error: error.message })
   else res.status(200).json(table)
+
+  io.emit('updateSpaces', { success: !(error), error: error?.message })
 })
 
 tablesRouter.get('/orders/:tableId', async (req, res) => {
