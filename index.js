@@ -7,6 +7,7 @@ import spacesRouter from './routers/spaces-router.js'
 import tablesRouter from './routers/tables-router.js'
 import ordersRouter from './routers/orders-router.js'
 import menuRouter from './routers/menu-router.js'
+import userRouter from './routers/user-router.js'
 
 // Socket
 import { Server } from 'socket.io'
@@ -39,6 +40,7 @@ app.use('/menu', menuRouter)
 app.use('/orders', ordersRouter)
 app.use('/tables', tablesRouter)
 app.use('/spaces', spacesRouter)
+app.use('/user', userRouter)
 
 server.listen(3000, () => {
   console.log('Server is listening on port 3000')
