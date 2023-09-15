@@ -10,20 +10,22 @@ userRouter.post('/signup', async (req, res) => {
     password
   })
 
+  console.log('error1: ' + error)
   if (error) {
-    return res.status(400).json({ error: error.message })
+    return res.status(409).json({ error: error.message })
   }
 
   const { errorProfiles } = await supabase
     .from('profiles')
-    .insert({ fullname, id: data.user.id })
+    .insert({ email, fullname, id: data.user.id })
     .single()
 
+  console.log('error2: ' + errorProfiles)
   if (errorProfiles) {
     return res.status(400).json({ error: errorProfiles.message })
   }
 
-  res.status(200)
+  res.status(200).json({ success: true })
 })
 
 userRouter.post('/login', async (req, res) => {
