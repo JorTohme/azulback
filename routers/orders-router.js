@@ -1,13 +1,15 @@
 import { Router } from 'express'
 import supabase from '../database/supabase.js'
 import { io } from '../index.js'
+
 const ordersRouter = Router()
 
 ordersRouter.get('/today', async (req, res) => {
+  // Public
+
   const { data: todayOrders, error } = await supabase
     .from('order')
     .select('*')
-    // .gte('created_at', new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString())
     .eq('finished', false)
     .order('created_at', { ascending: false })
 
@@ -82,7 +84,6 @@ ordersRouter.put('/:id', async (req, res) => {
   if (error) res.status(400).json({ error: error.message })
   else res.status(200).json(data)
 
-  // send socket event
   io.emit('updateOrders', { success: !(error), error: error?.message })
 })
 

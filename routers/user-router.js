@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import supabase from '../database/supabase.js'
 import jwt from 'jsonwebtoken'
+
 const userRouter = Router()
 
 userRouter.post('/signup', async (req, res) => {
@@ -31,7 +32,7 @@ userRouter.post('/signup', async (req, res) => {
 userRouter.post('/login', async (req, res) => {
   const { email, password } = req.body
 
-  const { user, session, error } = await supabase.auth.signIn({
+  const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password
   })
@@ -40,15 +41,22 @@ userRouter.post('/login', async (req, res) => {
     return res.status(401).json({ error: error.message })
   }
 
-  const token = jwt.sign(session, process.env.JWT_SECRET)
+  const { data: profile, error2 } = await supabase
+    .from('profiles')
+    // select fullname and organization
+    .select('fullname, organization')
+    .eq('id', data.user.id)
+    .single()
 
-  res.cookie('session', token, {
-    httpOnly: true,
-    secure: true,
-    sameSite: 'none'
+  if (error2) {
+    return res.status(400).json({ error: error2.message })
+  }
+
+  res.status(200).json({
+    success: true,
+    name: profile.fullname,
+    organization: profile.organization
   })
-
-  res.status(200).json({ user })
 })
 
 userRouter.post('/logout', async (req, res) => {

@@ -5,7 +5,10 @@ const supabaseUrl = process.env.SUPABASE_URL
 const supabaseKey = process.env.SUPABASE_KEY
 
 const supabase = createClient(supabaseUrl, supabaseKey, {
-  persistSession: false
+  auth: {
+    autoRefreshToken: false,
+    persistSession: false,
+    detectSessionInUrl: false
+  }
 })
-
 export default supabase

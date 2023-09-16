@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import supabase from '../database/supabase.js'
+import { checkOrigin } from '../userfunctions/userfunctions.js'
 
 const spacesRouter = Router()
 
@@ -14,6 +15,9 @@ spacesRouter.get('/', async (req, res) => {
 })
 
 spacesRouter.get('/tables', async (req, res) => {
+  const check = await checkOrigin(req)
+  if (check) return res.status(401).json(check)
+
   const { data: spaces, error } = await supabase
     .from('space')
     .select('*')
