@@ -1,10 +1,11 @@
 import supabase from '../database/supabase.js'
 
-export async function checkUser (req, res) {
+export async function checkUser (req, res, next) {
   const { email, password } = req.headers
 
   if (!email || !password) {
-    return { error: 'Unauthorized' }
+    res.status(401).json({ error: 'Unauthorized' })
+    return
   }
 
   const { userData, userError } = await supabase.auth.signInWithPassword({
@@ -13,14 +14,20 @@ export async function checkUser (req, res) {
   })
 
   if (userError) {
-    return { error: userError.message }
+    res.status(401).json({ error: 'Unauthorized' })
+    return
   }
+
+  next()
 }
 
-export async function checkOrigin (req, res) {
+export async function checkOrigin (req, res, next) {
   const { origin } = req.headers
 
   if (origin !== process.env.SECRET) {
-    return { error: 'Unauthorized' }
+    res.status(401).json({ error: 'Unauthorized' })
+    return
   }
+
+  next()
 }
