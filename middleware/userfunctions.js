@@ -8,7 +8,7 @@ export async function checkUser (req, res, next) {
     return
   }
 
-  const { userData, userError } = await supabase.auth.signInWithPassword({
+  const { data, userError } = await supabase.auth.signInWithPassword({
     email,
     password
   })

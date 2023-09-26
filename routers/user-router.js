@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import supabase from '../database/supabase.js'
-import jwt from 'jsonwebtoken'
+import { checkUser, checkOrigin } from '../middleware/userfunctions.js'
 
 const userRouter = Router()
 
@@ -61,6 +61,35 @@ userRouter.post('/login', async (req, res) => {
 
 userRouter.post('/logout', async (req, res) => {
   const { error } = await supabase.auth.signOut()
+
+  if (error) res.status(400).json({ error: error.message })
+  else res.status(200).json({ success: true })
+})
+
+userRouter.delete('/delete', checkOrigin, checkUser, async (req, res) => {
+  const { email, password } = req.headers
+
+  const { errorProfiles } = await supabase
+    .from('profiles')
+    .delete()
+    .eq('email', email)
+    .single()
+
+  if (errorProfiles) {
+    return res.status(400).json({ error: errorProfiles.message })
+  }
+
+  const { data, userDataError } = await supabase.auth.signInWithPassword({
+    email,
+    password
+  })
+
+  console.log(data.user.id)
+  const { error } = await supabase.auth.admin.deleteUser(
+    data.user.id
+  )
+
+  const { userErrorSignOut } = await supabase.auth.signOut()
 
   if (error) res.status(400).json({ error: error.message })
   else res.status(200).json({ success: true })
