@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import supabase from '../database/supabase.js'
 import { checkUser, checkOrigin } from '../middleware/userfunctions.js'
+import Jwt from 'jsonwebtoken'
 
 const userRouter = Router()
 
@@ -11,7 +12,6 @@ userRouter.post('/signup', async (req, res) => {
     password
   })
 
-  console.log('error1: ' + error)
   if (error) {
     return res.status(409).json({ error: error.message })
   }
@@ -21,7 +21,6 @@ userRouter.post('/signup', async (req, res) => {
     .insert({ email, fullname, id: data.user.id })
     .single()
 
-  console.log('error2: ' + errorProfiles)
   if (errorProfiles) {
     return res.status(400).json({ error: errorProfiles.message })
   }
@@ -43,7 +42,6 @@ userRouter.post('/login', async (req, res) => {
 
   const { data: profile, error2 } = await supabase
     .from('profiles')
-    // select fullname and organization
     .select('fullname, organization')
     .eq('id', data.user.id)
     .single()
@@ -57,6 +55,8 @@ userRouter.post('/login', async (req, res) => {
     name: profile.fullname,
     organization: profile.organization
   })
+
+  await supabase.auth.signOut()
 })
 
 userRouter.post('/logout', async (req, res) => {
@@ -93,6 +93,47 @@ userRouter.delete('/delete', checkOrigin, checkUser, async (req, res) => {
 
   if (error) res.status(400).json({ error: error.message })
   else res.status(200).json({ success: true })
+})
+
+userRouter.post('/loginJWT', async (req, res) => {
+  const { email, password } = req.body
+
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password
+  })
+
+  if (error) {
+    return res.status(401).json({ error: error.message })
+  }
+
+  const { data: profile, error2 } = await supabase
+    .from('profiles')
+    .select('fullname, organization')
+    .eq('id', data.user.id)
+    .single()
+
+  if (error2) {
+    return res.status(400).json({ error: error2.message })
+  }
+
+  const payload = {
+    id: data.user.id,
+    email,
+    fullname: profile.fullname,
+    organization: profile.organization
+  }
+
+  const token = Jwt.sign(payload, process.env.SECRET, {
+    expiresIn: '1h'
+  })
+
+  res.status(200).json({
+    success: true,
+    token
+  })
+
+  await supabase.auth.signOut()
 })
 
 export default userRouter
